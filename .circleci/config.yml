@@ -2,9 +2,9 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 jobs:
   build:
-    docker:
-      # replace with your preferred image
-      - image: cimg/base:stable
+    executor:
+      name: go/default
+      tag: '1.17'
     steps:
       - checkout
       - go/load-cache
