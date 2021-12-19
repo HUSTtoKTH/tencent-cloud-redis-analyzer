@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/obukhov/redis-inventory/cmd/app"
+	"github.com/HUSTtoKTH/redis-analyzer/cmd/app"
 )
 
 func main() {
