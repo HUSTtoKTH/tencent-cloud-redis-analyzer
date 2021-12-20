@@ -11,5 +11,8 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+/src/tencentcloudredis/tencent_cloud_redis_service_test.go
+redis-analyzer
+/save
 # Dependency directories (remove the comment below to include it)
 # vendor/

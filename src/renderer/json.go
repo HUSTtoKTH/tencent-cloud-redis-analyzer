@@ -1,0 +1,54 @@
+package renderer
+
+import (
+	"encoding/json"
+	"io"
+	"strings"
+
+	"github.com/HUSTtoKTH/redis-analyzer/src/trie"
+	"github.com/hetiansu5/urlquery"
+)
+
+// NewJSONRendererParams creates JSONRendererParams
+func NewJSONRendererParams(paramsSerialized string) (JSONRendererParams, error) {
+	params := JSONRendererParams{}
+
+	err := urlquery.Unmarshal([]byte(paramsSerialized), &params)
+	if err != nil {
+		return params, err
+	}
+
+	return params, nil
+}
+
+// JSONRendererParams represents rendering params for Json renderer
+type JSONRendererParams struct {
+	Padding           string `query:"padding"`
+	PaddingSpaceCount int    `query:"padSpaces"`
+}
+
+// NewJSONRenderer creates JSONRenderer
+func NewJSONRenderer(output io.Writer, params JSONRendererParams) JSONRenderer {
+	return JSONRenderer{
+		output: output,
+		params: params,
+	}
+}
+
+// JSONRenderer renders trie in the JSON format
+type JSONRenderer struct {
+	output io.Writer
+	params JSONRendererParams
+}
+
+// Render executes rendering
+func (o JSONRenderer) Render(root *trie.Node) error {
+	encoder := json.NewEncoder(o.output)
+
+	indent := o.params.Padding + strings.Repeat(" ", o.params.PaddingSpaceCount)
+	if indent != "" {
+		encoder.SetIndent("", indent)
+	}
+
+	return encoder.Encode(root)
+}
