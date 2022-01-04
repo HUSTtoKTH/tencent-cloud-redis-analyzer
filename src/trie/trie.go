@@ -4,6 +4,7 @@ package trie
 import (
 	"strings"
 
+	"github.com/HUSTtoKTH/redis-analyzer/src/matcher"
 	"github.com/HUSTtoKTH/redis-analyzer/src/splitter"
 )
 
@@ -14,6 +15,15 @@ func NewTypeTrie(splitter splitter.Splitter) *TypeTrie {
 	return &TypeTrie{
 		root:     node,
 		splitter: splitter,
+		matcher: matcher.NewMatcher([]string{
+			"data_proxyc_*_uin",
+			"data_proxyc_*_uid",
+			"data_proxyc_user_uid_*",
+			"data_proxyc_uid_oids_*",
+			"data_proxyc_*_parent",
+			"data_proxyc_*_childs",
+			"data_proxyc_user_login_*",
+		}),
 	}
 }
 
@@ -21,6 +31,7 @@ func NewTypeTrie(splitter splitter.Splitter) *TypeTrie {
 type TypeTrie struct {
 	root     *Node
 	splitter splitter.Splitter
+	matcher  *matcher.Matcher
 }
 
 // Add adds information about another key with set of params
@@ -35,8 +46,12 @@ func (t *TypeTrie) Add(key, keyType string, paramValues ...ParamValue) {
 		nextNode = childNode
 	}
 
-	keyPieces := t.splitter.Split(key)
-	pattern := strings.Join(keyPieces, t.splitter.Divider())
+	pattern := t.matcher.Match(key)
+	if pattern == "" {
+		keyPieces := t.splitter.Split(key)
+		pattern = strings.Join(keyPieces, t.splitter.Divider())
+	}
+
 	var finalNode *Node
 	if childNode := nextNode.GetChild(pattern); childNode == nil {
 		finalNode = NewNode()
